@@ -1,4 +1,4 @@
-#Transcript Automatic Emailer Project
+# Transcript Automatic Emailer Project
 
 ### Contains former student transcript request auto-mailer and unofficial, current student auto-mailer.
 
