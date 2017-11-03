@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-This is a temporary script file.
-"""
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -68,7 +62,7 @@ service = discovery.build('sheets', 'v4', http=http,
                           discoveryServiceUrl=discoveryUrl)
 
 spreadsheetId = '1GAYCS20L4Y_AwhL1kqHhQIJeW_G8YQY5Ee_YMrl5zdc'
-rangeName = '2017-2018!A:Q'
+rangeName = '2017-2018!A:Q' #Can change sheet name as needed
 result = service.spreadsheets().values().get(
     spreadsheetId=spreadsheetId, range=rangeName).execute()
 values = result.get('values', [])
