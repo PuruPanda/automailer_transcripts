@@ -104,7 +104,7 @@ if sheetCheck != 'u':
             TOADDR = maildata['Email Address'][recipient]
 
             if maildata['Pick up or Mail'][recipient] == 'Pick up at Mills.':
-                filltext = 'and is ready for pick up at the front desk of the Administration Office. Please see Tammy McGee to pick up your transcript and have your payment and proof of ID available.'
+                filltext = 'and is ready for pick up at room A-27 of the Mills High Counseling Office. Please see Mr. Puru Pandey to pick up your transcript and have your payment and proof of ID available.'
             else:
                 filltext = 'and sent to the requested address. Please remit your payment within seven business days.'
 
