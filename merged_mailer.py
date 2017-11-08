@@ -71,10 +71,12 @@ sheetCheck = input('Enter "u" for unofficial, or anything else for official: ')
 #Pulls data from the separate official and unofficial transcript request Google Sheets
 
 if sheetCheck != 'u':
-    spreadsheetId = '1i5MOo4wJvRz8p7DWhrQRerMsf0wbBFiwhH3EWHkwycw'  
+    spreadsheetId = '1i5MOo4wJvRz8p7DWhrQRerMsf0wbBFiwhH3EWHkwycw'
+    rangeName = 'Responses!A:N'  
     
 else:
     spreadsheetId = '14Pg8TYGqPaiExK0NgnIPQOw0E8JgQlJF8Rei7ngUqyE'
+    rangeName = 'Responses!A:I' 
     
 rangeName = 'Responses!A:I'
 result = service.spreadsheets().values().get(
@@ -83,6 +85,7 @@ values = result.get('values', [])
 
 maildata = pd.DataFrame(values)
 maildata.columns = maildata.loc[0]
+maildata = maildata[(maildata['Done'] != 'Done')]
 
 print('Emails will be sent to:\n')
 for recipient in maildata.index:
