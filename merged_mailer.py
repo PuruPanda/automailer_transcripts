@@ -71,95 +71,76 @@ sheetCheck = input('Enter "u" for unofficial, or anything else for official: ')
 #Pulls data from the separate official and unofficial transcript request Google Sheets
 
 if sheetCheck != 'u':
-    spreadsheetId = '1GAYCS20L4Y_AwhL1kqHhQIJeW_G8YQY5Ee_YMrl5zdc'
-    rangeName = '2017-2018!A:Q' #Can change sheet name as needed
-    result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheetId, range=rangeName).execute()
-    values = result.get('values', [])
+    spreadsheetId = '1i5MOo4wJvRz8p7DWhrQRerMsf0wbBFiwhH3EWHkwycw'
+    rangeName = 'Responses!A:N'  
     
 else:
     spreadsheetId = '14Pg8TYGqPaiExK0NgnIPQOw0E8JgQlJF8Rei7ngUqyE'
-    rangeName = 'Responses!A:I'
-    result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheetId, range=rangeName).execute()
-    values = result.get('values', [])
+    rangeName = 'Responses!A:I' 
+    
+rangeName = 'Responses!A:I'
+result = service.spreadsheets().values().get(
+    spreadsheetId=spreadsheetId, range=rangeName).execute()
+values = result.get('values', [])
 
 maildata = pd.DataFrame(values)
 maildata.columns = maildata.loc[0]
+maildata = maildata[(maildata['Done'] != 'Done')]
 
-#Runs the email protocols - sheets are formatted differently, so there's a large if-else
-
-if sheetCheck != 'u':
-    maildata = maildata[(maildata['Ready'] != 'Ready') & (maildata['Ready'] != 'mailed')]
-
-    print('Emails will be sent to the following people:\n')
-    for recipient in maildata['Full Name']:
-        print(recipient)
-
-    emailconfirm = input('Send email? (Y/N): ')
-
-    if emailconfirm == 'Y':
-        for recipient in maildata.index:
-            msg = MIMEMultipart()
-            TOADDR = maildata['Email Address'][recipient]
-
-            if maildata['Pick up or Mail'][recipient] == 'Pick up at Mills.':
-                filltext = 'and is ready for pick up at room A-27 of the Mills High Counseling Office. Please see Mr. Puru Pandey to pick up your transcript and have your payment and proof of ID available.'
-            else:
-                filltext = 'and sent to the requested address. Please remit your payment within seven business days.'
-
-            msg['From'] = FROMADDR
-            msg['To'] = TOADDR
-            msg['Subject'] = 'Transcript Request'
-
-            body = '''Dear %s,\n
-    Your transcript request has been processed %s\n
-    Thank you,\n
-    Puru Pandey
-    Student Data Analyst
-    Mills High School
-    (650) 558-2519''' % (maildata['Full Name'][recipient], filltext)
-
-            msg.attach(MIMEText(body, 'plain'))
-
-            emailtext = msg.as_string()
-            server.sendmail(FROMADDR, TOADDR, emailtext)
-
-    else:
-        pass
+print('Emails will be sent to:\n')
+for recipient in maildata.index:
+    print(maildata['First name'][recipient], ' ', maildata['Last name'][recipient])
     
-else:
-    maildata = maildata[maildata['Done'] != 'Done']
-    print('Emails will be sent to the following people:\n')
+emailconfirm = input('Send email? (Y/N): ')
+
+if emailconfirm == 'Y' and sheetCheck != 'u':
     for recipient in maildata.index:
-        print(maildata['First name'][recipient], ' ', maildata['Last name'][recipient])
+        msg = MIMEMultipart()
+        TOADDR = maildata['Email Address'][recipient]
 
-    emailconfirm = input('Send email? (Y/N): ')
+        if maildata['Transcript Receipt Method'][recipient] == 'Pick up at Mills':
+            filltext = 'and is ready for pick up at room A-27 of the Mills High Counseling Office. Please see Mr. Puru Pandey to pick up your transcript and have your payment and proof of ID available.'
+        else:
+            filltext = 'and sent to the requested address. Please remit your payment within seven business days.'
 
-    if emailconfirm == 'Y':
-        for recipient in maildata.index:
-            msg = MIMEMultipart()
-            TOADDR = maildata['Email Address'][recipient]
+        msg['From'] = FROMADDR
+        msg['To'] = TOADDR
+        msg['Subject'] = 'Transcript Request'
 
-            msg['From'] = FROMADDR
-            msg['To'] = TOADDR
-            msg['Subject'] = 'Transcript Request'
+        body = '''Dear %s,\n
+Your transcript request has been processed %s\n
+Thank you,\n
+Puru Pandey
+Student Data Analyst
+Mills High School
+(650) 558-2519''' % (maildata['First name'][recipient]+' '+maildata['Last name'][recipient], filltext)
+        
+        msg.attach(MIMEText(body, 'plain'))
+        emailtext = msg.as_string()
+        server.sendmail(FROMADDR, TOADDR, emailtext)
 
-            body = '''Dear %s,\n
-    Your unofficial transcript request has been processed and is ready for pick up at room A-27 in the Counseling Office. Please have your payment and ID ready.\n
-    Thank you,\n
-    Puru Pandey
-    Student Data Analyst
-    Mills High School
-    (650) 558-2519''' % (maildata['First name'][recipient]+' '+maildata['Last name'][recipient])
+elif emailconfirm == 'Y' and sheetCheck == 'u':
+    for recipient in maildata.index:
+        msg = MIMEMultipart()
+        TOADDR = maildata['Email Address'][recipient]
 
-            msg.attach(MIMEText(body, 'plain'))
+        msg['From'] = FROMADDR
+        msg['To'] = TOADDR
+        msg['Subject'] = 'Transcript Request'
 
-            emailtext = msg.as_string()
-            server.sendmail(FROMADDR, TOADDR, emailtext)
+        body = '''Dear %s,\n
+Your unofficial transcript request has been processed and is ready for pick up at room A-27 in the Counseling Office. Please have your payment and ID ready.\n
+Thank you,\n
+Puru Pandey
+Student Data Analyst
+Mills High School
+(650) 558-2519''' % (maildata['First name'][recipient]+' '+maildata['Last name'][recipient])
+        
+        msg.attach(MIMEText(body, 'plain'))
+        emailtext = msg.as_string()
+        server.sendmail(FROMADDR, TOADDR, emailtext)
 
-    else:
-        pass
-    
+else:
+    pass   
     
 server.quit()
